@@ -21,7 +21,6 @@ module "user_label" {
 }
 
 resource "aws_security_group" "default" {
-  count       = var.enabled ? 1 : 0
   vpc_id      = var.vpc_id
   name        = module.label.id
   description = "Allow inbound traffic from Security Groups and CIDRs. Allow all outbound traffic"
@@ -51,7 +50,6 @@ resource "aws_security_group_rule" "ingress_cidr_blocks" {
 }
 
 resource "aws_security_group_rule" "egress" {
-  count             = var.enabled ? 1 : 0
   description       = "Allow all egress traffic"
   type              = "egress"
   from_port         = 0
@@ -100,7 +98,6 @@ data "aws_iam_policy_document" "assume_role" {
 }
 
 resource "aws_elasticsearch_domain" "default" {
-  count                 = var.enabled ? 1 : 0
   domain_name           = module.label.id
   elasticsearch_version = var.elasticsearch_version
 
