@@ -53,8 +53,8 @@ resource "aws_security_group_rule" "egress" {
   description       = "Allow all egress traffic"
   type              = "egress"
   from_port         = 0
-  to_port           = 65535
-  protocol          = "tcp"
+  to_port           = 0
+  protocol          = "-1"
   cidr_blocks       = ["0.0.0.0/0"]
   security_group_id = join("", aws_security_group.default.*.id)
 }
@@ -178,6 +178,24 @@ data "aws_iam_policy_document" "default" {
     principals {
       type        = "AWS"
       identifiers = distinct(compact(concat(var.iam_role_arns, aws_iam_role.elasticsearch_user.*.arn)))
+    }
+  }
+  statement {
+    actions = distinct(compact(var.iam_actions))
+
+    resources = [
+      join("", aws_elasticsearch_domain.default.*.arn),
+      "${join("", aws_elasticsearch_domain.default.*.arn)}/*"
+    ]
+
+    principals {
+      type        = "AWS"
+      identifiers = "*"
+    }
+    condition {
+      test     = "IpAddress"
+      variable = "aws:SourceIp"
+      values = var.allowed_cidr_blocks
     }
   }
 }
